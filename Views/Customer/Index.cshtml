@@ -1,0 +1,63 @@
+﻿@model IEnumerable<BikeRentalSystem.Models.Customer>
+
+<h2>Customer List</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-primary mb-3">Add New Customer</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Full Name</th>
+            <th>Address</th>
+            <th>Phone Number</th>
+            <th>Email</th>
+            <th>Marital Status</th>
+            <th>Date of Birth</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var customer in Model)
+        {
+            <tr>
+                <td>@customer.FullName</td>
+                <td>@customer.Address</td>
+                <td>@customer.PhoneNumber</td>
+                <td>@customer.Email</td>
+                <td>
+                    @if (customer.IsMarried)
+                    {
+                        <span class="badge bg-success">Married</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">Single</span>
+                    }
+                </td>
+                <td>@customer.DateOfBirth.ToString("yyyy-MM-dd")</td>
+                <td>
+                    @if (customer.Image != null)
+                    {
+                        var base64Image = Convert.ToBase64String(customer.Image);
+                        var imgSrc = $"data:image/jpeg;base64,{base64Image}";
+                        <img src="@imgSrc" alt="Customer Image" width="100" height="50" />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = customer.CustomerID })" class="btn btn-warning btn-sm">Edit</a>
+
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@customer.CustomerID" />
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this customer?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>

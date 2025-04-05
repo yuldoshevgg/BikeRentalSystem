@@ -1,0 +1,110 @@
+/*******************************************************************************
+   BikeRentalSystem Database - Version 1.0
+   Script: BikeRentalSystem_SqlServer_AutoIncrementPKs.sql
+   Description: Creates and populates the BikeRentalSystem database.
+   DB Server: SqlServer
+********************************************************************************/
+
+/*******************************************************************************
+   Drop database if it exists
+********************************************************************************/
+IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'BikeRentalSystem')
+BEGIN
+    ALTER DATABASE [BikeRentalSystem] SET OFFLINE WITH ROLLBACK IMMEDIATE;
+    ALTER DATABASE [BikeRentalSystem] SET ONLINE;
+    DROP DATABASE [BikeRentalSystem];
+END
+
+GO
+
+/*******************************************************************************
+   Create database
+********************************************************************************/
+CREATE DATABASE [BikeRentalSystem];
+GO
+
+USE [BikeRentalSystem];
+GO
+
+/*******************************************************************************
+   Create Tables
+********************************************************************************/
+-- Customer table
+CREATE TABLE [dbo].[Customer]
+(
+    [CustomerID] INT NOT NULL IDENTITY,
+    [FullName] NVARCHAR(100) NOT NULL,
+    [Address] NVARCHAR(100) NOT NULL,
+    [DateOfBirth] DATE NOT NULL,
+    [PhoneNumber] NVARCHAR(20) NOT NULL,
+    [IsMarried] BIT NOT NULL DEFAULT 0,
+    [Image] VARBINARY(MAX),
+    [Email] NVARCHAR(100),
+    CONSTRAINT [PK_Customer] PRIMARY KEY CLUSTERED ([CustomerID])
+);
+GO
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Bike' AND type = 'U')
+    DROP TABLE [dbo].[Bike];
+GO
+
+-- Bike table
+CREATE TABLE [dbo].[Bike]
+(
+    [BikeID] INT NOT NULL IDENTITY,
+    [Type] NVARCHAR(50) NOT NULL,
+    [Status] NVARCHAR(50) NOT NULL,
+    [DateAdded] DATETIME2 NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    [RentalPricePerHour] DECIMAL(18,2) NOT NULL,
+    [Model] NVARCHAR(50),
+    [Image] VARBINARY(MAX),
+    [HasInsurance] BIT NOT NULL DEFAULT 0,
+    CONSTRAINT [PK_Bike] PRIMARY KEY CLUSTERED ([BikeID])
+);
+
+IF EXISTS (SELECT * FROM sys.tables WHERE name = 'Rental' AND type = 'U')
+    DROP TABLE [dbo].[Rental];
+GO
+
+CREATE TABLE [dbo].[Rental]
+(
+    [RentalID] INT NOT NULL IDENTITY,
+    [CustomerID] INT NOT NULL,
+    [BikeID] INT NOT NULL,
+    [RentalStartDate] DATETIME2 NOT NULL,
+    [RentalEndDate] DATETIME2 NOT NULL,
+    [RentalDuration] INT NOT NULL, -- Duration in hours
+    [TotalCost] DECIMAL(18,2) NOT NULL,
+    CONSTRAINT [PK_Rental] PRIMARY KEY CLUSTERED ([RentalID]),
+    CONSTRAINT [FK_Rental_Customer] FOREIGN KEY ([CustomerID]) REFERENCES [dbo].[Customer] ([CustomerID]),
+    CONSTRAINT [FK_Rental_Bike] FOREIGN KEY ([BikeID]) REFERENCES [dbo].[Bike] ([BikeID])
+);
+GO
+
+INSERT INTO [dbo].[Customer] ([FullName], [Address], [DateOfBirth], [PhoneNumber], [IsMarried], [Image], [Email]) VALUES 
+('John Doe', '123 Main St, Tashkent', '1990-05-15', '+998901234567', 1, NULL, 'john.doe@example.com'),
+('Jane Smith', '456 Elm St, Tashkent', '1988-09-20', '+998911112233', 0, NULL, 'jane.smith@example.com'),
+('Ali Karimov', '78 University Ave, Samarkand', '1995-12-01', '+998933332211', 0, NULL, 'ali.karimov@example.com'),
+('Nodira Usmonova', '90 Independence St, Bukhara', '1992-03-08', '+998977778888', 1, NULL, 'nodira.usmonova@example.com'),
+('Temur Saidov', '12 Navoi St, Tashkent', '1985-11-25', '+998935551122', 1, NULL, 'temur.saidov@example.com');
+GO
+
+INSERT INTO [dbo].[Bike] 
+    ([Type], [Status], [DateAdded], [RentalPricePerHour], [Model], [HasInsurance])
+VALUES
+    ('Road Bike', 'Available', '2023-01-15', 15.00, 'Speedster 3000', 1),
+    ('Mountain Bike', 'Available', '2023-02-20', 20.00, 'Trail Blazer', 1),
+    ('Hybrid Bike', 'In Maintenance', '2023-03-10', 12.50, 'City Commuter', 0),
+    ('Electric Bike', 'Available', '2023-04-05', 25.00, 'E-Power Pro', 1),
+    ('Folding Bike', 'Rented', '2023-05-12', 10.00, 'Compact Fold', 0),
+    ('Gravel Bike', 'Available', '2023-06-18', 18.00, 'Adventure Master', 1),
+    ('Road Bike', 'Available', '2023-07-22', 16.00, 'Racer X', 0),
+    ('Mountain Bike', 'In Maintenance', '2023-08-30', 22.00, 'Rock Climber', 1);
+
+INSERT INTO [dbo].[Rental] 
+    ([CustomerID], [BikeID], [RentalStartDate], [RentalEndDate], [RentalDuration], [TotalCost])
+VALUES
+    (1, 1, '2023-04-10 08:00:00', '2023-04-10 10:00:00', 2, 30.00),  -- Customer 1 rents Road Bike
+    (2, 4, '2023-05-01 09:00:00', '2023-05-01 12:00:00', 3, 60.00),  -- Customer 2 rents Electric Bike
+    (3, 5, '2023-06-12 14:00:00', '2023-06-12 16:00:00', 2, 20.00);  -- Customer 3 rents Folding Bike
+GO

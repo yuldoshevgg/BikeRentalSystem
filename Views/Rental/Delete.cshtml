@@ -1,0 +1,10 @@
+﻿@model Rental
+
+<h2>Delete Confirmation</h2>
+<p>Are you sure you want to delete the rental <strong>@Model.RentalID</strong>?</p>
+
+<form asp-action="Delete" method="post">
+    <input type="hidden" asp-for="RentalID" />
+    <button type="submit" class="btn btn-danger">Delete</button>
+    <a asp-action="Index" class="btn btn-secondary">Cancel</a>
+</form>

@@ -1,0 +1,63 @@
+﻿@model IEnumerable<Bike>
+
+<h2>Bike List</h2>
+
+<a href="@Url.Action("Create")" class="btn btn-primary mb-3">Add New Bike</a>
+
+<table class="table table-bordered table-striped">
+    <thead class="thead-dark">
+        <tr>
+            <th>Model</th>
+            <th>Type</th>
+            <th>Status</th>
+            <th>Price (Per Hour)</th>
+            <th>Has Insurance</th>
+            <th>Date Added</th>
+            <th>Image</th>
+            <th>Actions</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var bike in Model)
+        {
+            <tr>
+                <td>@bike.Model</td>
+                <td>@bike.Type</td>
+                <td>@bike.Status</td>
+                <td>@bike.RentalPricePerHour.ToString("C")</td>
+                <td>
+                    @if (bike.HasInsurance)
+                    {
+                        <span class="badge bg-success">Yes</span>
+                    }
+                    else
+                    {
+                        <span class="badge bg-danger">No</span>
+                    }
+                </td>
+                <td>@bike.DateAdded.ToString("yyyy-MM-dd HH:mm:ss")</td>
+                <td>
+                    @if (bike.Image != null)
+                    {
+                        var base64Image = Convert.ToBase64String(bike.Image);
+                        var imgSrc = $"data:image/jpeg;base64,{base64Image}";
+                        <img src="@imgSrc" alt="Bike Image" width="100" height="50" />
+                    }
+                    else
+                    {
+                        <span>No Image</span>
+                    }
+                </td>
+                <td>
+                    <a href="@Url.Action("Edit", new { id = bike.BikeID })" class="btn btn-warning btn-sm">Edit</a>
+
+                    <form asp-action="Delete" method="post" class="d-inline">
+                        <input type="hidden" name="id" value="@bike.BikeID" />
+                        <button type="submit" class="btn btn-danger btn-sm"
+                            onclick="return confirm('Are you sure you want to delete this bike?');">Delete</button>
+                    </form>
+                </td>
+            </tr>
+        }
+    </tbody>
+</table>
