@@ -173,5 +173,89 @@ namespace BikeRentalSystem.DAL
 
             return rentalsQuery.Count();
         }
+
+        public string ExportRentalsToXml(RentalFilter filter)
+        {
+            string result = string.Empty;
+
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "ExportRentalsToXML";
+                command.CommandType = CommandType.StoredProcedure;
+
+                var customerNameParam = command.CreateParameter();
+                customerNameParam.ParameterName = "@CustomerName";
+                customerNameParam.Value = filter.CustomerName ?? (object)DBNull.Value;
+                command.Parameters.Add(customerNameParam);
+
+                var bikeModelParam = command.CreateParameter();
+                bikeModelParam.ParameterName = "@BikeModel";
+                bikeModelParam.Value = filter.BikeModel ?? (object)DBNull.Value;
+                command.Parameters.Add(bikeModelParam);
+
+                var startDateParam = command.CreateParameter();
+                startDateParam.ParameterName = "@StartDate";
+                startDateParam.Value = filter.StartDate.HasValue ? (object)filter.StartDate.Value : DBNull.Value;
+                command.Parameters.Add(startDateParam);
+
+                var endDateParam = command.CreateParameter();
+                endDateParam.ParameterName = "@EndDate";
+                endDateParam.Value = filter.EndDate.HasValue ? (object)filter.EndDate.Value : DBNull.Value;
+                command.Parameters.Add(endDateParam);
+
+                if (command?.Connection?.State != ConnectionState.Open)
+                    command?.Connection?.Open();
+
+                using (var reader = command?.ExecuteReader())
+                {
+                    if (reader != null && reader.Read())
+                        result = reader.GetString(0);
+                }
+            }
+
+            return !string.IsNullOrEmpty(result) ? result : "<Rentals></Rentals>";
+        }
+
+        public string ExportRentalsToJson(RentalFilter filter)
+        {
+            string result = string.Empty;
+
+            using (var command = _context.Database.GetDbConnection().CreateCommand())
+            {
+                command.CommandText = "ExportRentalsToJSON";
+                command.CommandType = CommandType.StoredProcedure;
+
+                var customerNameParam = command.CreateParameter();
+                customerNameParam.ParameterName = "@CustomerName";
+                customerNameParam.Value = filter.CustomerName ?? (object)DBNull.Value;
+                command.Parameters.Add(customerNameParam);
+
+                var bikeModelParam = command.CreateParameter();
+                bikeModelParam.ParameterName = "@BikeModel";
+                bikeModelParam.Value = filter.BikeModel ?? (object)DBNull.Value;
+                command.Parameters.Add(bikeModelParam);
+
+                var startDateParam = command.CreateParameter();
+                startDateParam.ParameterName = "@StartDate";
+                startDateParam.Value = filter.StartDate.HasValue ? (object)filter.StartDate.Value : DBNull.Value;
+                command.Parameters.Add(startDateParam);
+
+                var endDateParam = command.CreateParameter();
+                endDateParam.ParameterName = "@EndDate";
+                endDateParam.Value = filter.EndDate.HasValue ? (object)filter.EndDate.Value : DBNull.Value;
+                command.Parameters.Add(endDateParam);
+
+                if (command?.Connection?.State != ConnectionState.Open)
+                    command?.Connection?.Open();
+
+                using (var reader = command?.ExecuteReader())
+                {
+                    if (reader != null && reader.Read())
+                        result = reader.GetString(0);
+                }
+            }
+
+            return !string.IsNullOrEmpty(result) ? result : "{\"Rentals\":[]}";
+        }
     }
 }

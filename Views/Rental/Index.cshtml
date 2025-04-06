@@ -96,7 +96,7 @@
     </tbody>
 </table>
 
-@if (Model.TotalPages > 1)
+@if (Model?.TotalPages > 1)
 {
     <div>
         Page:
@@ -129,3 +129,50 @@
         }
     </div>
 }
+
+<div class="row my-4">
+    <div class="col-12">
+        <div class="card"></div>
+            <div class="card-header bg-light">
+                <h5 class="card-title mb-0">
+                    <i class="bi bi-download me-2"></i>Export Data
+                </h5>
+            </div>
+            <div class="card-body">
+                <div class="d-flex">
+                    @* Use form to properly submit all current filter parameters *@
+                    <form asp-action="ExportToXml" method="get" class="me-2">
+                        @* Hidden fields to pass all current filter parameters *@
+                        <input type="hidden" name="CustomerName" value="@Model?.Filter?.CustomerName" />
+                        <input type="hidden" name="BikeModel" value="@Model?.Filter?.BikeModel" />
+                        <input type="hidden" name="StartDate" value="@Model?.Filter?.StartDate?.ToString("yyyy-MM-dd")" />
+                        <input type="hidden" name="EndDate" value="@Model?.Filter?.EndDate?.ToString("yyyy-MM-dd")" />
+                        
+                        <button type="submit" class="btn btn-outline-primary">
+                            <i class="bi bi-filetype-xml me-1"></i> Export to XML
+                        </button>
+                    </form>
+                    
+                    <form asp-action="ExportToJson" method="get">
+                        @* Hidden fields to pass all current filter parameters *@
+                        <input type="hidden" name="CustomerName" value="@Model?.Filter?.CustomerName" />
+                        <input type="hidden" name="BikeModel" value="@Model?.Filter?.BikeModel" />
+                        <input type="hidden" name="StartDate" value="@Model?.Filter?.StartDate?.ToString("yyyy-MM-dd")" />
+                        <input type="hidden" name="EndDate" value="@Model?.Filter?.EndDate?.ToString("yyyy-MM-dd")" />
+                        
+                        <button type="submit" class="btn btn-outline-success">
+                            <i class="bi bi-filetype-json me-1"></i> Export to JSON
+                        </button>
+                    </form>
+                </div>
+                
+                @if (TempData["ErrorMessage"] != null)
+                {
+                    <div class="alert alert-danger mt-3">
+                        @TempData["ErrorMessage"]
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+</div>

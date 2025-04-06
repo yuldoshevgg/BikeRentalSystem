@@ -116,40 +116,45 @@ CREATE PROCEDURE [dbo].[ExportRentalsToJSON]
 AS
 BEGIN
     SET NOCOUNT ON;
-    
-    SELECT 
-        r.RentalID,
-        r.RentalStartDate,
-        r.RentalEndDate,
-        r.RentalDuration,
-        r.TotalCost,
-        JSON_QUERY((SELECT 
-            b.BikeID,
-            b.Model,
-            b.Type,
-            b.Status,
-            b.RentalPricePerHour,
-            b.DateAdded,
-            b.HasInsurance
-        FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)) AS Bike,
-        JSON_QUERY((SELECT 
-            c.CustomerID,
-            c.FullName,
-            c.Email,
-            c.PhoneNumber,
-            c.Address,
-            c.DateOfBirth,
-            FORMAT(c.DateOfBirth, 'yyyy-MM-dd') AS DateOfBirthFormatted,
-            c.IsMarried
-        FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)) AS Customer
-    FROM Rental r
-    LEFT JOIN Bike b ON r.BikeID = b.BikeID
-    LEFT JOIN Customer c ON r.CustomerID = c.CustomerID
-    WHERE 
-        (@CustomerName IS NULL OR c.FullName LIKE '%' + @CustomerName + '%') AND
-        (@BikeModel IS NULL OR b.Model LIKE '%' + @BikeModel + '%') AND
-        (@StartDate IS NULL OR r.RentalStartDate >= @StartDate) AND
-        (@EndDate IS NULL OR r.RentalEndDate <= @EndDate)
-    FOR JSON PATH, ROOT('Rentals')
+    DECLARE @json NVARCHAR(MAX);
+
+    SELECT @json = (
+        SELECT 
+            r.RentalID,
+            r.RentalStartDate,
+            r.RentalEndDate,
+            r.RentalDuration,
+            r.TotalCost,
+            JSON_QUERY((SELECT 
+                b.BikeID,
+                b.Model,
+                b.Type,
+                b.Status,
+                b.RentalPricePerHour,
+                b.DateAdded,
+                b.HasInsurance
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)) AS Bike,
+            JSON_QUERY((SELECT 
+                c.CustomerID,
+                c.FullName,
+                c.Email,
+                c.PhoneNumber,
+                c.Address,
+                c.DateOfBirth,
+                FORMAT(c.DateOfBirth, 'yyyy-MM-dd') AS DateOfBirthFormatted,
+                c.IsMarried
+            FOR JSON PATH, WITHOUT_ARRAY_WRAPPER)) AS Customer
+        FROM Rental r
+        LEFT JOIN Bike b ON r.BikeID = b.BikeID
+        LEFT JOIN Customer c ON r.CustomerID = c.CustomerID
+        WHERE 
+            (@CustomerName IS NULL OR c.FullName LIKE '%' + @CustomerName + '%') AND
+            (@BikeModel IS NULL OR b.Model LIKE '%' + @BikeModel + '%') AND
+            (@StartDate IS NULL OR r.RentalStartDate >= @StartDate) AND
+            (@EndDate IS NULL OR r.RentalEndDate <= @EndDate)
+        FOR JSON PATH, ROOT('Rentals')
+    );
+
+    SELECT @json;
 END
 GO

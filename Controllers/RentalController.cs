@@ -5,6 +5,7 @@ using System;
 using System.IO;
 using System.Collections.Generic;
 using BikeRentalSystem.DAL;
+using System.Text;
 
 namespace BikeRentalSystem.Controllers
 {
@@ -139,6 +140,54 @@ namespace BikeRentalSystem.Controllers
         {
             _dbHelper.DeleteRental(id);
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpGet]
+        public IActionResult ExportToXml(RentalFilter filter)
+        {
+            try
+            {
+                var xmlContent = _dbHelper.ExportRentalsToXml(filter);
+                byte[] bytes = Encoding.UTF8.GetBytes(xmlContent);
+
+                return File(bytes, "application/xml", $"bike-rentals-{DateTime.Now:yyyyMMdd}.xml");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                TempData["ErrorMessage"] = $"Failed to export XML: {ex.Message}";
+                return RedirectToAction("Index", new
+                {
+                    CustomerName = filter.CustomerName,
+                    BikeModel = filter.BikeModel,
+                    StartDate = filter.StartDate,
+                    EndDate = filter.EndDate
+                });
+            }
+        }
+
+        [HttpGet]
+        public IActionResult ExportToJson(RentalFilter filter)
+        {
+            try
+            {
+                var jsonContent = _dbHelper.ExportRentalsToJson(filter);
+                byte[] bytes = Encoding.UTF8.GetBytes(jsonContent);
+
+                return File(bytes, "application/json", $"bike-rentals-{DateTime.Now:yyyyMMdd}.json");
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                TempData["ErrorMessage"] = $"Failed to export JSON: {ex.Message}";
+                return RedirectToAction("Index", new
+                {
+                    CustomerName = filter.CustomerName,
+                    BikeModel = filter.BikeModel,
+                    StartDate = filter.StartDate,
+                    EndDate = filter.EndDate
+                });
+            }
         }
     }
 }
