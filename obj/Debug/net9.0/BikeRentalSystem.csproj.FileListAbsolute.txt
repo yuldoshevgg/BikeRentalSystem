@@ -350,3 +350,4 @@
 /Users/gayratyuldoshev/Downloads/BikeRentalSystem/BikeRentalSystem/obj/Debug/net9.0/BikeRentalSystem.pdb
 /Users/gayratyuldoshev/Downloads/BikeRentalSystem/BikeRentalSystem/obj/Debug/net9.0/BikeRentalSystem.genruntimeconfig.cache
 /Users/gayratyuldoshev/Downloads/BikeRentalSystem/BikeRentalSystem/obj/Debug/net9.0/ref/BikeRentalSystem.dll
+/Users/gayratyuldoshev/Downloads/BikeRentalSystem/BikeRentalSystem/obj/Debug/net9.0/BikeRentalSystem.sourcelink.json

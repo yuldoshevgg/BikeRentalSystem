@@ -17,10 +17,25 @@ namespace BikeRentalSystem.Controllers
             _dbHelper = new RentalDatabaseHelperEF(context);
         }
 
-        public IActionResult Index()
+        public IActionResult Index(RentalFilter filter, string sortBy = "DateRented", bool sortAsc = true, int page = 1, int pageSize = 10)
         {
-            var rentals = _dbHelper.GetAllRentals();
-            return View(rentals);
+            var rentals = _dbHelper.GetFilteredRentals(filter, sortBy, sortAsc, page, pageSize);
+            var totalCount = _dbHelper.GetTotalFilteredRentalsCount(filter);
+
+            var totalPages = (int)Math.Ceiling(totalCount / (double)pageSize);
+
+            var viewModel = new RentalPageViewModel
+            {
+                Rentals = rentals,
+                Filter = filter,
+                PageNumber = page,
+                PageSize = pageSize,
+                TotalPages = totalPages,
+                SortBy = sortBy,
+                SortAsc = sortAsc
+            };
+
+            return View(viewModel);
         }
 
         public IActionResult Create()
